@@ -20,6 +20,12 @@ export const createFetchTodoListAction = () => ({
   payload: undefined,
 });
 
+const CREATE_TODO_ACTION_TYPE = "Create todo list from server";
+export const createTodoAction = (todoName) => ({
+  type: CREATE_TODO_ACTION_TYPE,
+  payload: todoName,
+});
+
 const CLEAR_ERROR = "Clear error from state";
 export const clearError = () => ({
   type: CLEAR_ERROR,
@@ -46,6 +52,15 @@ const reducer = async (prevState, { type, payload }) => {
       try {
         const resp = await fetch(api).then((d) => d.json());
         return { todoList: resp.todoList, error: null };
+      } catch (err) {
+        return { ...prevState, error: err };
+      }
+    }
+    case CREATE_TODO_ACTION_TYPE: {
+      try {
+        const body = JSON.stringify(payload)
+        const resp = await fetch(api, { method: 'POST', body, headers }).then((d) => d.json());
+        return { todoLisst: [...prevState.todoLisst, resp], error: null };
       } catch (err) {
         return { ...prevState, error: err };
       }
