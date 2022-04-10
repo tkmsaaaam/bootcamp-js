@@ -26,6 +26,12 @@ export const createTodoAction = (todoName) => ({
   payload: todoName,
 });
 
+const UPDATE_TODO_ACTION_TYPE = "Update todo from server"
+export const updateTodoAction = (todo) => ({
+  type: UPDATE_TODO_ACTION_TYPE,
+  payload: todo,
+})
+
 const CLEAR_ERROR = "Clear error from state";
 export const clearError = () => ({
   type: CLEAR_ERROR,
@@ -60,7 +66,20 @@ const reducer = async (prevState, { type, payload }) => {
       try {
         const body = JSON.stringify(payload)
         const resp = await fetch(api, { method: 'POST', body, headers }).then((d) => d.json());
-        return { todoLisst: [...prevState.todoLisst, resp], error: null };
+        return { todoList: [...prevState.todoList, resp], error: null };
+      } catch (err) {
+        return { ...prevState, error: err };
+      }
+    }
+    case UPDATE_TODO_ACTION_TYPE: {
+      try {
+        const { id, ...body } = payload;
+        const resp = await fetch(`${api}/${id}`, { method: 'PATCH', body, headers , body: JSON.stringify(body)}).then((d) => d.json());
+        const idx = prevState.todoList.findIndex((todo) => todo.id === resp.id);
+        if (idx === -1) return prevState
+        const nextTodoList = prevState.todoList.concat();
+        nextTodoList[idx] = resp;
+        return { todoList: nextTodoList, error: null };
       } catch (err) {
         return { ...prevState, error: err };
       }

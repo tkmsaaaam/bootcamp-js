@@ -1,3 +1,6 @@
+import store from '../store.js';
+import { updateTodoAction } from '../flux/index.js';
+
 class Todo {
   constructor(parent, { id, name, done }) {
     this.parent = parent;
@@ -7,6 +10,11 @@ class Todo {
 
   mount() {
     if (this.mounted) return;
+    const toggle = this.element.querySelector(".todo-toggle");
+    toggle.addEventListener("click", () => {
+      this.props = { ...this.props, done: !this.props.done };
+      store.dispatch(updateTodoAction(this.props));
+    });
     // TODO: ここにTODOの削除ボタンが押されたときの処理を追記
     // TODO: ここにTODOのチェックボックスが押されたときの処理を追記
     this.mounted = true;
