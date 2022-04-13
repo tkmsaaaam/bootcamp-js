@@ -32,6 +32,12 @@ export const updateTodoAction = (todo) => ({
   payload: todo,
 })
 
+const DELETE_TODO_ACTION_TYPE = "Delete todo from server"
+export const deleteTodoAction = (todo) => ({
+  type: DELETE_TODO_ACTION_TYPE,
+  payload: todo,
+})
+
 const CLEAR_ERROR = "Clear error from state";
 export const clearError = () => ({
   type: CLEAR_ERROR,
@@ -74,11 +80,24 @@ const reducer = async (prevState, { type, payload }) => {
     case UPDATE_TODO_ACTION_TYPE: {
       try {
         const { id, ...body } = payload;
-        const resp = await fetch(`${api}/${id}`, { method: 'PATCH', body, headers , body: JSON.stringify(body)}).then((d) => d.json());
+        const resp = await fetch(`${api}/${id}`, { method: 'PATCH', headers , body: JSON.stringify(body)}).then((d) => d.json());
         const idx = prevState.todoList.findIndex((todo) => todo.id === resp.id);
         if (idx === -1) return prevState
         const nextTodoList = prevState.todoList.concat();
         nextTodoList[idx] = resp;
+        return { todoList: nextTodoList, error: null };
+      } catch (err) {
+        return { ...prevState, error: err };
+      }
+    }
+    case DELETE_TODO_ACTION_TYPE: {
+      try {
+        const id = payload;
+        const resp = await fetch(`${api}/${id}`, { method: 'DELETE', headers})
+        const idx = prevState.todoList.findIndex((todo) => todo.id == id);
+        if (idx === -1) return prevState
+        const nextTodoList = prevState.todoList.concat();
+        nextTodoList.splice(idx, 1);
         return { todoList: nextTodoList, error: null };
       } catch (err) {
         return { ...prevState, error: err };

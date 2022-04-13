@@ -1,5 +1,6 @@
 import store from '../store.js';
 import { updateTodoAction } from '../flux/index.js';
+import { deleteTodoAction } from '../flux/index.js';
 
 class Todo {
   constructor(parent, { id, name, done }) {
@@ -17,6 +18,11 @@ class Todo {
     });
     // TODO: ここにTODOの削除ボタンが押されたときの処理を追記
     // TODO: ここにTODOのチェックボックスが押されたときの処理を追記
+
+    const deleteBtn = this.element.querySelector(".todo-remove-button");
+    deleteBtn.addEventListener("click", () => {
+      store.dispatch(deleteTodoAction(this.props.id));
+    });
     this.mounted = true;
   }
 
